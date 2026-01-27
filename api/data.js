@@ -1,92 +1,55 @@
-const GITHUB_ORG = 'nolimitjonesinc';
-
 // ============================================
-// PROJECT CONFIG - which repos to track and how to display them
+// COMMAND CENTER API — FULLY AUTOMATED
+//
+// Auto-discovers ALL repos from:
+//   - nolimitjonesinc (personal)
+//   - Nolimit-Labs-Projects (org)
+//
+// For each repo, scans file tree for PRD/roadmap
+// markdown files, parses checklists, and builds
+// project data. Zero manual config needed.
 // ============================================
 
-const PROJECT_CONFIG = {
-  'Loomiverse-Online': {
-    name: 'Loomiverse',
-    emoji: '\u{1F4D6}',
-    description: 'AI Interactive Storytelling',
-    color: '#8b5cf6',
-    priority: 1,
-    status: 'active',
-    prdFiles: ['PRD.md']
-  },
-  'Quiply': {
-    name: 'Quiplee',
-    emoji: '\u{1F4AC}',
-    description: 'Chrome Extension for Social Replies',
-    color: '#3b82f6',
-    priority: 2,
-    status: 'live',
-    prdFiles: ['PRD_Quiply_Enhancement.md', 'PRD_REPLY_BOOSTER_COMPLETION.md']
-  },
-  'mockingbirdnews': {
-    name: 'MockingBird News',
-    emoji: '\u{1F4F0}',
-    description: 'News Aggregation Platform',
-    color: '#ef4444',
-    priority: 3,
-    status: 'active',
-    prdFiles: ['MBN create-prd.md', 'article-summarization-enhancement-prd.md', 'tweet-carousel-prd.md']
-  },
-  'Genesis-Engine': {
-    name: 'Genesis Engine',
-    emoji: '\u{1F9EC}',
-    description: 'Procedural Character Generator',
-    color: '#f59e0b',
-    priority: 4,
-    status: 'active',
-    prdFiles: ['ROADMAP.md']
-  },
-  'tweetminer': {
-    name: 'TweetMiner',
-    emoji: '\u{26CF}\u{FE0F}',
-    description: 'Reply Analysis for Product Ideas',
-    color: '#06b6d4',
-    priority: 5,
-    status: 'live',
-    prdFiles: ['tweetminer/README.md']
-  },
-  'Gaurdian': {
-    name: 'Guardian',
-    emoji: '\u{1F6E1}\u{FE0F}',
-    description: 'Security & Protection System',
-    color: '#22c55e',
-    priority: 6,
-    status: 'active',
-    prdFiles: ['README.md']
-  },
-  'EmbersInc': {
-    name: 'Embers Inc',
-    emoji: '\u{1F525}',
-    description: 'Embers Inc Project',
-    color: '#f97316',
-    priority: 7,
-    status: 'active',
-    prdFiles: ['README.md']
-  },
-  'DJ-Brain': {
-    name: 'DJ Brain',
-    emoji: '\u{1F9E0}',
-    description: 'AI Knowledge System',
-    color: '#ec4899',
-    priority: 8,
-    status: 'active',
-    prdFiles: []
-  },
-  'MASTER_MockingBirdApp': {
-    name: 'MockingBird App',
-    emoji: '\u{1F4F1}',
-    description: 'Main iOS App',
-    color: '#a855f7',
-    priority: 9,
-    status: 'paused',
-    prdFiles: ['DETAILED_IMPROVEMENT_PRD.md']
+const GITHUB_SOURCES = [
+  { type: 'user', name: 'nolimitjonesinc' },
+  { type: 'org', name: 'Nolimit-Labs-Projects' }
+];
+
+// Files matching these patterns (case-insensitive) get parsed for checklists
+const PRD_FILE_PATTERN = /(?:prd|roadmap|todo|checklist|tasks).*\.md$/i;
+
+// Repos to skip (profile repos, test repos, auto-generated junk)
+const SKIP_REPOS = new Set([
+  'nolimitjonesinc',        // GitHub profile config
+  'mockingbird-test',       // test repo
+  'simple-hello-world-web-page-single-page-that-say', // auto-generated
+  'Twitter-Bot',            // empty repo
+  'Tagaroo',                // empty repo
+]);
+
+// Deterministic color palette — each repo gets a consistent color based on its name
+const COLORS = [
+  '#8b5cf6', '#3b82f6', '#ef4444', '#f59e0b', '#06b6d4',
+  '#22c55e', '#f97316', '#ec4899', '#a855f7', '#14b8a6',
+  '#e11d48', '#6366f1', '#84cc16', '#f43f5e', '#0ea5e9',
+  '#d946ef', '#fb923c', '#4ade80', '#38bdf8', '#c084fc'
+];
+
+function getColor(name) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = ((hash << 5) - hash) + name.charCodeAt(i);
+    hash |= 0;
   }
-};
+  return COLORS[Math.abs(hash) % COLORS.length];
+}
+
+// Friendly display name from repo name
+function displayName(repoName) {
+  return repoName
+    .replace(/[-_]+/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
+}
 
 // ============================================
 // GITHUB API HELPERS
@@ -94,37 +57,70 @@ const PROJECT_CONFIG = {
 
 async function ghFetch(path) {
   const token = process.env.GITHUB_TOKEN;
+  if (!token) return null;
+
   const res = await fetch(`https://api.github.com/${path}`, {
     headers: {
       'Authorization': `token ${token}`,
       'Accept': 'application/vnd.github.v3+json',
-      'User-Agent': 'CommandCenter/1.0'
+      'User-Agent': 'CommandCenter/2.0'
     }
   });
   if (!res.ok) return null;
   return res.json();
 }
 
-async function getRepoInfo(repoName) {
-  return ghFetch(`repos/${GITHUB_ORG}/${repoName}`);
+async function getAllRepos() {
+  const allRepos = [];
+
+  for (const source of GITHUB_SOURCES) {
+    // Fetch both pages to ensure we get all repos
+    const endpoint = source.type === 'org'
+      ? `orgs/${source.name}/repos?per_page=100&sort=pushed&type=all`
+      : `users/${source.name}/repos?per_page=100&sort=pushed&type=owner`;
+
+    const repos = await ghFetch(endpoint);
+    if (!repos || !Array.isArray(repos)) continue;
+
+    for (const repo of repos) {
+      if (repo.archived) continue;
+      if (SKIP_REPOS.has(repo.name)) continue;
+
+      allRepos.push({
+        name: repo.name,
+        fullName: repo.full_name,
+        owner: source.name,
+        description: repo.description || '',
+        pushedAt: repo.pushed_at,
+        defaultBranch: repo.default_branch,
+        isOrg: source.type === 'org'
+      });
+    }
+  }
+
+  // Deduplicate by repo name (personal takes priority if somehow both have same name)
+  const seen = new Set();
+  return allRepos.filter(r => {
+    if (seen.has(r.name.toLowerCase())) return false;
+    seen.add(r.name.toLowerCase());
+    return true;
+  });
 }
 
-async function getRecentCommits(repoName, count = 5) {
-  return ghFetch(`repos/${GITHUB_ORG}/${repoName}/commits?per_page=${count}`);
+async function getFileTree(owner, repoName) {
+  const data = await ghFetch(`repos/${owner}/${repoName}/git/trees/HEAD?recursive=1`);
+  if (!data || !data.tree) return [];
+  return data.tree.map(t => t.path);
 }
 
-async function getFileContent(repoName, filePath) {
-  const data = await ghFetch(`repos/${GITHUB_ORG}/${repoName}/contents/${encodeURIComponent(filePath)}`);
+async function getFileContent(owner, repoName, filePath) {
+  const data = await ghFetch(`repos/${owner}/${repoName}/contents/${encodeURIComponent(filePath)}`);
   if (!data || !data.content) return null;
   return Buffer.from(data.content, 'base64').toString('utf8');
 }
 
-async function getOpenIssues(repoName) {
-  return ghFetch(`repos/${GITHUB_ORG}/${repoName}/issues?state=open&per_page=10`);
-}
-
-async function getOpenPRs(repoName) {
-  return ghFetch(`repos/${GITHUB_ORG}/${repoName}/pulls?state=open&per_page=10`);
+async function getRecentCommits(owner, repoName, count = 3) {
+  return ghFetch(`repos/${owner}/${repoName}/commits?per_page=${count}`);
 }
 
 // ============================================
@@ -137,13 +133,11 @@ function parseChecklists(content, fileName) {
   let currentHeading = fileName.replace(/\.md$/i, '').replace(/[-_]/g, ' ');
 
   for (const line of lines) {
-    // Track headings for grouping
     const headingMatch = line.match(/^#{1,3}\s+(.+)/);
     if (headingMatch) {
       currentHeading = headingMatch[1].trim();
     }
 
-    // Parse checklist items: - [ ] or - [x] or * [ ] etc.
     const checkMatch = line.match(/^[\s]*[-*]\s*\[([ xX])\]\s*(.+)/);
     if (checkMatch) {
       tasks.push({
@@ -161,28 +155,31 @@ function parseChecklists(content, fileName) {
 // BUILD PROJECT DATA
 // ============================================
 
-async function buildProjectData(repoName, config) {
-  const [repoInfo, commits, issues, prs] = await Promise.all([
-    getRepoInfo(repoName),
-    getRecentCommits(repoName),
-    getOpenIssues(repoName),
-    getOpenPRs(repoName)
-  ]);
+async function buildProjectData(repo, index) {
+  const { name: repoName, owner, description, pushedAt } = repo;
 
-  if (!repoInfo) {
-    return null;
+  // Get file tree to find PRD files
+  let prdFiles = [];
+  try {
+    const tree = await getFileTree(owner, repoName);
+    prdFiles = tree.filter(f => PRD_FILE_PATTERN.test(f));
+  } catch (e) {
+    // Empty repo or no access — skip file tree
   }
 
-  // Fetch and parse PRD files in parallel
-  const prdResults = await Promise.all(
-    config.prdFiles.map(async (file) => {
-      const content = await getFileContent(repoName, file);
-      if (!content) return { file, tasks: [] };
-      return { file, tasks: parseChecklists(content, file) };
-    })
-  );
+  // Fetch PRD contents + recent commits in parallel
+  const [prdResults, commits] = await Promise.all([
+    Promise.all(
+      prdFiles.map(async (file) => {
+        const content = await getFileContent(owner, repoName, file);
+        if (!content) return { file, tasks: [] };
+        return { file, tasks: parseChecklists(content, file) };
+      })
+    ),
+    getRecentCommits(owner, repoName)
+  ]);
 
-  // Group tasks by section into milestones
+  // Build milestones from PRD checklists
   const milestones = [];
   for (const prd of prdResults) {
     if (prd.tasks.length === 0) continue;
@@ -200,13 +197,13 @@ async function buildProjectData(repoName, config) {
       const allDone = doneTasks === sectionTasks.length;
 
       milestones.push({
-        id: `${repoName}-${sectionName}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40),
+        id: `${repoName}-${sectionName}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 50),
         name: sectionName,
         done: allDone,
         current: !allDone && milestones.every(m => m.done),
         source: prd.file,
         tasks: sectionTasks.map((t, i) => ({
-          id: `${repoName}-t${milestones.length}-${i}`,
+          id: `${repoName}-m${milestones.length}-t${i}`.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
           name: t.name,
           done: t.done,
           current: !t.done && sectionTasks.slice(0, i).every(st => st.done)
@@ -215,56 +212,66 @@ async function buildProjectData(repoName, config) {
     }
   }
 
-  // If no milestones from PRDs, create a simple one from repo activity
+  // No PRD checklists found — show recent commits as activity
   if (milestones.length === 0 && commits && commits.length > 0) {
     milestones.push({
-      id: `${repoName}-activity`,
+      id: `${repoName}-activity`.toLowerCase(),
       name: 'Recent Activity',
       done: false,
       current: true,
       tasks: commits.slice(0, 5).map((c, i) => ({
-        id: `${repoName}-commit-${i}`,
+        id: `${repoName}-c${i}`.toLowerCase(),
         name: c.commit.message.split('\n')[0].slice(0, 80),
-        done: true,
-        aiTime: null
+        done: true
       }))
     });
   }
 
   // Mark first undone milestone as current
-  const hasCurrentMilestone = milestones.some(m => m.current);
-  if (!hasCurrentMilestone) {
+  if (!milestones.some(m => m.current)) {
     const firstUndone = milestones.find(m => !m.done);
     if (firstUndone) firstUndone.current = true;
   }
 
-  // Calculate days since last commit
-  const lastPush = repoInfo.pushed_at ? new Date(repoInfo.pushed_at) : null;
-  const daysSinceUpdate = lastPush ? Math.floor((Date.now() - lastPush.getTime()) / (1000 * 60 * 60 * 24)) : null;
+  // Determine status from activity
+  const lastPush = pushedAt ? new Date(pushedAt) : null;
+  const daysSinceUpdate = lastPush
+    ? Math.floor((Date.now() - lastPush.getTime()) / (1000 * 60 * 60 * 24))
+    : null;
 
-  // Determine status from config or activity
-  let status = config.status || 'active';
-  if (daysSinceUpdate !== null && daysSinceUpdate > 30 && status === 'active') {
-    status = 'paused';
+  let status = 'active';
+  if (daysSinceUpdate !== null) {
+    if (daysSinceUpdate > 90) status = 'paused';
+    else if (daysSinceUpdate > 30) status = 'idle';
+  }
+
+  // Count total checklist progress
+  let totalItems = 0, doneItems = 0;
+  for (const m of milestones) {
+    for (const t of (m.tasks || [])) {
+      totalItems++;
+      if (t.done) doneItems++;
+    }
   }
 
   return {
     id: repoName.toLowerCase(),
-    name: config.name,
-    emoji: config.emoji,
-    description: config.description || repoInfo.description || '',
+    name: displayName(repoName),
+    description,
     status,
-    priority: config.priority,
-    color: config.color,
-    repo: `github.com/${GITHUB_ORG}/${repoName}`,
+    priority: index,
+    color: getColor(repoName),
+    repo: `github.com/${owner}/${repoName}`,
+    owner,
+    prdFiles: prdFiles.length,
     lastCommit: commits && commits[0] ? {
       message: commits[0].commit.message.split('\n')[0],
       date: commits[0].commit.committer.date,
       sha: commits[0].sha.slice(0, 7)
     } : null,
-    openIssues: issues ? issues.length : 0,
-    openPRs: prs ? prs.filter(p => !p.draft).length : 0,
     daysSinceUpdate,
+    totalItems,
+    doneItems,
     milestones
   };
 }
@@ -274,26 +281,48 @@ async function buildProjectData(repoName, config) {
 // ============================================
 
 export default async function handler(req, res) {
-  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
 
   try {
-    // Build all projects in parallel
-    const projectEntries = Object.entries(PROJECT_CONFIG);
-    const projects = (await Promise.all(
-      projectEntries.map(([repo, config]) => buildProjectData(repo, config))
-    )).filter(Boolean);
+    // Step 1: Discover all repos
+    const repos = await getAllRepos();
 
-    // Sort by priority
-    projects.sort((a, b) => a.priority - b.priority);
+    // Step 2: Build project data for each (in parallel batches of 5 to avoid rate limits)
+    const projects = [];
+    const batchSize = 8;
+    for (let i = 0; i < repos.length; i += batchSize) {
+      const batch = repos.slice(i, i + batchSize);
+      const results = await Promise.all(
+        batch.map((repo, j) =>
+          buildProjectData(repo, i + j).catch(() => null)
+        )
+      );
+      projects.push(...results.filter(Boolean));
+    }
+
+    // Step 3: Sort — active repos with PRD checklists first, then by recent activity
+    projects.sort((a, b) => {
+      // Status priority: active > idle > paused
+      const statusOrder = { active: 0, idle: 1, paused: 2 };
+      const statusDiff = (statusOrder[a.status] || 2) - (statusOrder[b.status] || 2);
+      if (statusDiff !== 0) return statusDiff;
+
+      // Repos with PRD checklists first
+      const prdDiff = (b.prdFiles || 0) - (a.prdFiles || 0);
+      if (prdDiff !== 0) return prdDiff;
+
+      // Then by most recently pushed
+      return (a.daysSinceUpdate || 999) - (b.daysSinceUpdate || 999);
+    });
 
     const data = {
       meta: {
         lastUpdated: new Date().toISOString(),
         lastScanType: 'live-api',
-        version: '2.0.0',
-        projectCount: projects.length
+        version: '3.0.0',
+        projectCount: projects.length,
+        sources: GITHUB_SOURCES.map(s => s.name)
       },
       projects
     };
