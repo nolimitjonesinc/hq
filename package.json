@@ -1,0 +1,13 @@
+{
+  "name": "command-center",
+  "version": "1.0.0",
+  "description": "DJ's Project Command Center - Track all your projects in one place",
+  "scripts": {
+    "dev": "npx serve public",
+    "scan": "node scripts/scanner.js",
+    "status": "node scripts/scanner.js --status",
+    "done": "node scripts/scanner.js --mark-done"
+  },
+  "author": "DJ",
+  "license": "MIT"
+}

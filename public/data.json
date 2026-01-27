@@ -1,0 +1,284 @@
+{
+  "meta": {
+    "lastUpdated": "2025-01-26T12:00:00Z",
+    "lastScanType": "manual",
+    "version": "1.0.0"
+  },
+  "projects": [
+    {
+      "id": "loomiverse",
+      "name": "Loomiverse",
+      "emoji": "📖",
+      "description": "AI Interactive Storytelling",
+      "status": "active",
+      "priority": 1,
+      "color": "#8b5cf6",
+      "repo": "github.com/yourusername/loomiverse",
+      "prdPath": "docs/PRD.md",
+      "milestones": [
+        {
+          "id": "l-m1",
+          "name": "ContinuityGuard System",
+          "done": true,
+          "completedAt": "2025-01-15T00:00:00Z",
+          "tasks": [
+            { "id": "l-t1", "name": "Design StoryBible architecture", "done": true, "aiTime": 45 },
+            { "id": "l-t2", "name": "Build context injection", "done": true, "aiTime": 30 },
+            { "id": "l-t3", "name": "Test with sample stories", "done": true, "aiTime": 20 }
+          ]
+        },
+        {
+          "id": "l-m2",
+          "name": "Live Story Tracker",
+          "done": true,
+          "completedAt": "2025-01-20T00:00:00Z",
+          "tasks": [
+            { "id": "l-t4", "name": "Real-time state updates", "done": true, "aiTime": 60 },
+            { "id": "l-t5", "name": "Chapter summaries", "done": true, "aiTime": 30 },
+            { "id": "l-t6", "name": "Narrative phase detection", "done": true, "aiTime": 45 }
+          ]
+        },
+        {
+          "id": "l-m3",
+          "name": "Inner Voice Mode",
+          "done": false,
+          "current": true,
+          "dueDate": "2025-01-30",
+          "tasks": [
+            {
+              "id": "l-t7",
+              "name": "Design interaction UX",
+              "done": true,
+              "aiTime": 30,
+              "subtasks": [
+                { "id": "l-s1", "name": "Sketch wireframes", "done": true, "aiTime": 15 },
+                { "id": "l-s2", "name": "User flow diagram", "done": true, "aiTime": 20 },
+                { "id": "l-s3", "name": "Review with test users", "done": true, "aiTime": 10 }
+              ]
+            },
+            {
+              "id": "l-t8",
+              "name": "Build UI components",
+              "done": false,
+              "current": true,
+              "aiTime": 45,
+              "subtasks": [
+                { "id": "l-s4", "name": "Create thought bubble component", "done": true, "aiTime": 15 },
+                { "id": "l-s5", "name": "Add typing animation", "done": false, "current": true, "aiTime": 20 },
+                { "id": "l-s6", "name": "Connect to story context", "done": false, "aiTime": 25 },
+                { "id": "l-s7", "name": "Handle edge cases", "done": false, "aiTime": 15 }
+              ]
+            },
+            {
+              "id": "l-t9",
+              "name": "Integrate with story engine",
+              "done": false,
+              "aiTime": 60,
+              "subtasks": [
+                { "id": "l-s8", "name": "API endpoint for inner voice", "done": false, "aiTime": 20 },
+                { "id": "l-s9", "name": "Context window management", "done": false, "aiTime": 25 },
+                { "id": "l-s10", "name": "Response formatting", "done": false, "aiTime": 15 }
+              ]
+            },
+            { "id": "l-t10", "name": "Test and polish", "done": false, "aiTime": 30 }
+          ]
+        },
+        {
+          "id": "l-m4",
+          "name": "Auth & Bot Prevention",
+          "done": false,
+          "dueDate": "2025-02-10",
+          "tasks": [
+            { "id": "l-t11", "name": "Choose auth provider", "done": false, "aiTime": 15 },
+            { "id": "l-t12", "name": "Implement sign-up flow", "done": false, "aiTime": 45 },
+            { "id": "l-t13", "name": "Add rate limiting", "done": false, "aiTime": 30 },
+            { "id": "l-t14", "name": "Bot detection layer", "done": false, "aiTime": 60 }
+          ]
+        },
+        {
+          "id": "l-m5",
+          "name": "Beta Launch",
+          "done": false,
+          "dueDate": "2025-02-15",
+          "tasks": [
+            { "id": "l-t15", "name": "TestFlight setup", "done": false, "aiTime": 30 },
+            { "id": "l-t16", "name": "Invite beta users", "done": false, "aiTime": 15 },
+            { "id": "l-t17", "name": "Feedback collection system", "done": false, "aiTime": 45 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "quiplee",
+      "name": "Quiplee",
+      "emoji": "💬",
+      "description": "Chrome Extension for Social Replies",
+      "status": "live",
+      "priority": 2,
+      "color": "#3b82f6",
+      "repo": "github.com/yourusername/quiplee",
+      "prdPath": "PRD.md",
+      "milestones": [
+        {
+          "id": "q-m1",
+          "name": "40+ Humor Styles",
+          "done": true,
+          "tasks": [
+            { "id": "q-t1", "name": "Define style categories", "done": true, "aiTime": 20 },
+            { "id": "q-t2", "name": "Write prompts for each", "done": true, "aiTime": 60 },
+            { "id": "q-t3", "name": "Test output quality", "done": true, "aiTime": 30 }
+          ]
+        },
+        {
+          "id": "q-m2",
+          "name": "Values-Based Responses",
+          "done": true,
+          "tasks": [
+            { "id": "q-t4", "name": "Conservative/Christian tone", "done": true, "aiTime": 30 },
+            { "id": "q-t5", "name": "Political perspectives", "done": true, "aiTime": 30 },
+            { "id": "q-t6", "name": "Context input box", "done": true, "aiTime": 20 }
+          ]
+        },
+        {
+          "id": "q-m3",
+          "name": "Chrome Store Polish",
+          "done": false,
+          "current": true,
+          "dueDate": "2025-02-01",
+          "tasks": [
+            { "id": "q-t7", "name": "Screenshots and promo images", "done": false, "current": true, "aiTime": 45 },
+            { "id": "q-t8", "name": "Store listing copy", "done": false, "aiTime": 20 },
+            { "id": "q-t9", "name": "Privacy policy", "done": false, "aiTime": 15 },
+            { "id": "q-t10", "name": "Submit for review", "done": false, "aiTime": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "command-center",
+      "name": "Command Center",
+      "emoji": "🎯",
+      "description": "Project Tracker Dashboard",
+      "status": "active",
+      "priority": 3,
+      "color": "#22c55e",
+      "repo": "github.com/yourusername/command-center",
+      "prdPath": "README.md",
+      "milestones": [
+        {
+          "id": "cc-m1",
+          "name": "Phase 1: Visual Dashboard",
+          "done": false,
+          "current": true,
+          "dueDate": "2025-01-28",
+          "tasks": [
+            { "id": "cc-t1", "name": "Focus + Command mode toggle", "done": true, "aiTime": 30 },
+            { "id": "cc-t2", "name": "Expandable task tree", "done": true, "aiTime": 45 },
+            { "id": "cc-t3", "name": "Built-in calendar view", "done": true, "aiTime": 40 },
+            { "id": "cc-t4", "name": "JSON data structure", "done": false, "current": true, "aiTime": 20 },
+            { "id": "cc-t5", "name": "Deploy to Vercel", "done": false, "aiTime": 15 }
+          ]
+        },
+        {
+          "id": "cc-m2",
+          "name": "Phase 2: Auto-Updates",
+          "done": false,
+          "dueDate": "2025-02-05",
+          "tasks": [
+            { "id": "cc-t6", "name": "GitHub repo scanner", "done": false, "aiTime": 60 },
+            { "id": "cc-t7", "name": "PRD file parser", "done": false, "aiTime": 45 },
+            { "id": "cc-t8", "name": "CLI update command", "done": false, "aiTime": 30 }
+          ]
+        },
+        {
+          "id": "cc-m3",
+          "name": "Phase 3: Full Automation",
+          "done": false,
+          "dueDate": "2025-02-15",
+          "tasks": [
+            { "id": "cc-t9", "name": "Hourly sync service", "done": false, "aiTime": 45 },
+            { "id": "cc-t10", "name": "Auto-check completed items", "done": false, "aiTime": 60 },
+            { "id": "cc-t11", "name": "Wife-friendly summary", "done": false, "aiTime": 30 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "emergent-chars",
+      "name": "Emergent Characters",
+      "emoji": "🧬",
+      "description": "Procedural Character Generator",
+      "status": "active",
+      "priority": 4,
+      "color": "#f59e0b",
+      "repo": "github.com/yourusername/emergent-characters",
+      "prdPath": "docs/emergent-character-system-v2.md",
+      "milestones": [
+        { "id": "e-m1", "name": "V2 Spec Complete", "done": true, "tasks": [] },
+        { "id": "e-m2", "name": "Seed Generator", "done": true, "tasks": [] },
+        {
+          "id": "e-m3",
+          "name": "Event System",
+          "done": false,
+          "current": true,
+          "dueDate": "2025-02-20",
+          "tasks": [
+            { "id": "e-t1", "name": "Define event types", "done": true, "aiTime": 30 },
+            { "id": "e-t2", "name": "Build event generator", "done": false, "current": true, "aiTime": 60 },
+            { "id": "e-t3", "name": "Character response logic", "done": false, "aiTime": 45 },
+            { "id": "e-t4", "name": "Memory accumulation", "done": false, "aiTime": 40 }
+          ]
+        },
+        { "id": "e-m4", "name": "Childhood Simulation", "done": false, "dueDate": "2025-03-01", "tasks": [] }
+      ]
+    },
+    {
+      "id": "tron-games",
+      "name": "TRON Games",
+      "emoji": "🏍️",
+      "description": "ADHD-Friendly Light Cycle Games",
+      "status": "paused",
+      "priority": 5,
+      "color": "#ec4899",
+      "repo": "github.com/yourusername/tron-games",
+      "prdPath": "docs/PRD.md",
+      "milestones": [
+        { "id": "t-m1", "name": "Trail Light Prototype", "done": true, "tasks": [] },
+        { "id": "t-m2", "name": "ARES CYCLE Build", "done": true, "tasks": [] },
+        { "id": "t-m3", "name": "Hunt Mode", "done": false, "tasks": [] },
+        { "id": "t-m4", "name": "11 Levels + Boss", "done": false, "tasks": [] }
+      ]
+    },
+    {
+      "id": "tweetminer",
+      "name": "TweetMiner",
+      "emoji": "⛏️",
+      "description": "Reply Analysis for Product Ideas",
+      "status": "live",
+      "priority": 6,
+      "color": "#06b6d4",
+      "repo": "github.com/yourusername/tweetminer",
+      "prdPath": "README.md",
+      "milestones": [
+        { "id": "tm-m1", "name": "Three Lenses Complete", "done": true, "tasks": [] },
+        { "id": "tm-m2", "name": "Vercel Deploy", "done": true, "tasks": [] }
+      ]
+    },
+    {
+      "id": "pareidolia",
+      "name": "Pareidolia",
+      "emoji": "☁️",
+      "description": "Cloud Watching App",
+      "status": "paused",
+      "priority": 7,
+      "color": "#a855f7",
+      "repo": "github.com/yourusername/pareidolia",
+      "prdPath": "docs/PRD.md",
+      "milestones": [
+        { "id": "p-m1", "name": "Cloud Rendering", "done": true, "tasks": [] },
+        { "id": "p-m2", "name": "Drawing Mode", "done": true, "tasks": [] },
+        { "id": "p-m3", "name": "Weather Physics", "done": false, "tasks": [] }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>DJ's Command Center</title>
+  <meta name="description" content="Project Command Center">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="HQ">
+  <meta name="theme-color" content="#09090b">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      background: #09090b;
+      color: #fff;
+      min-height: 100vh;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    /* Header */
+    .header {
+      padding: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    
+    .header-date {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      margin-top: 2px;
+    }
+    
+    .mode-toggle {
+      display: flex;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 3px;
+    }
+    
+    .mode-toggle button {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    
+    .mode-toggle button.active {
+      background: #22c55e;
+      color: #fff;
+    }
+    
+    .mode-toggle button:last-child.active {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    /* Content */
+    .content {
+      padding: 20px;
+    }
+    
+    /* Focus Mode */
+    .focus-card {
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+    
+    .focus-breadcrumb {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .focus-breadcrumb span.sep {
+      opacity: 0.5;
+    }
+    
+    .focus-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+    
+    .focus-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .focus-time {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .focus-time-value {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .focus-time-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+    }
+    
+    .focus-subtasks {
+      margin-bottom: 20px;
+    }
+    
+    .focus-subtasks-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 8px;
+    }
+    
+    .focus-subtask {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+    }
+    
+    .focus-subtask.done {
+      opacity: 0.5;
+    }
+    
+    .focus-subtask.done .focus-subtask-name {
+      text-decoration: line-through;
+    }
+    
+    .focus-subtask-name {
+      font-size: 14px;
+      flex: 1;
+    }
+    
+    .focus-subtask.current .focus-subtask-name {
+      color: #fff;
+    }
+    
+    .focus-actions {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .btn-done {
+      flex: 1;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #fff;
+    }
+    
+    .btn-skip {
+      padding: 14px 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      font-size: 15px;
+      cursor: pointer;
+    }
+    
+    /* Info card */
+    .info-card {
+      background: rgba(255,255,255,0.03);
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+    
+    .info-card-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 12px;
+    }
+    
+    .deadline-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .deadline-row:last-child {
+      border-bottom: none;
+    }
+    
+    .deadline-name {
+      flex: 1;
+      font-size: 14px;
+      color: rgba(255,255,255,0.8);
+    }
+    
+    .deadline-days {
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .deadline-days.urgent {
+      color: #f97316;
+    }
+    
+    .deadline-days.soon {
+      color: #eab308;
+    }
+    
+    /* Command Mode */
+    .view-toggle {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      padding: 4px;
+    }
+    
+    .view-toggle button {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    .view-toggle button.active {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    
+    /* Project card */
+    .project-card {
+      background: rgba(255,255,255,0.02);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.05);
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    
+    .project-header {
+      padding: 18px 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    
+    .project-emoji {
+      font-size: 24px;
+    }
+    
+    .project-info {
+      flex: 1;
+    }
+    
+    .project-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    
+    .project-name {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    
+    .project-status {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    
+    .project-status.active {
+      background: rgba(34, 197, 94, 0.15);
+      color: #22c55e;
+    }
+    
+    .project-status.live {
+      background: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+    }
+    
+    .project-status.paused {
+      background: rgba(107, 114, 128, 0.15);
+      color: #6b7280;
+    }
+    
+    .project-desc {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+    }
+    
+    .project-progress {
+      text-align: right;
+      min-width: 60px;
+    }
+    
+    .project-progress-value {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    
+    .project-progress-value.complete {
+      color: #22c55e;
+    }
+    
+    .project-chevron {
+      color: rgba(255,255,255,0.3);
+      font-size: 12px;
+      transition: transform 0.2s ease;
+    }
+    
+    .project-card.expanded .project-chevron {
+      transform: rotate(180deg);
+    }
+    
+    .project-current {
+      padding: 10px 20px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .project-current-text {
+      font-size: 13px;
+    }
+    
+    .project-content {
+      padding: 0 20px 16px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      display: none;
+    }
+    
+    .project-card.expanded .project-content {
+      display: block;
+    }
+    
+    .project-card.expanded .project-current {
+      display: none;
+    }
+    
+    .milestones-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.3);
+      padding: 14px 0 8px;
+    }
+    
+    /* Milestone row */
+    .milestone-row {
+      margin-bottom: 4px;
+    }
+    
+    .milestone-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      cursor: pointer;
+    }
+    
+    .milestone-row.done .milestone-header {
+      opacity: 0.6;
+    }
+    
+    .milestone-chevron {
+      width: 16px;
+      font-size: 10px;
+      color: rgba(255,255,255,0.4);
+      transition: transform 0.15s ease;
+    }
+    
+    .milestone-row.expanded .milestone-chevron {
+      transform: rotate(90deg);
+    }
+    
+    .milestone-name {
+      font-size: 15px;
+      font-weight: 500;
+      flex: 1;
+    }
+    
+    .milestone-row.current .milestone-name {
+      color: #fff;
+      font-weight: 600;
+    }
+    
+    .milestone-row.done .milestone-name {
+      text-decoration: line-through;
+    }
+    
+    .milestone-count {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+    }
+    
+    .milestone-due {
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.05);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    
+    .milestone-badge {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+    
+    .milestone-tasks {
+      padding-bottom: 8px;
+      display: none;
+    }
+    
+    .milestone-row.expanded .milestone-tasks {
+      display: block;
+    }
+    
+    /* Task row */
+    .task-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0 8px 24px;
+    }
+    
+    .task-row.done {
+      opacity: 0.5;
+    }
+    
+    .task-chevron {
+      width: 14px;
+      font-size: 8px;
+      color: rgba(255,255,255,0.4);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    
+    .task-row.has-subtasks.expanded .task-chevron {
+      transform: rotate(90deg);
+    }
+    
+    .task-name {
+      font-size: 14px;
+      flex: 1;
+    }
+    
+    .task-row.current .task-name {
+      color: #fff;
+      font-weight: 500;
+    }
+    
+    .task-row.done .task-name {
+      text-decoration: line-through;
+    }
+    
+    .task-time {
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.05);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    
+    .task-badge {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    
+    .task-subtasks {
+      border-left: 1px solid rgba(255,255,255,0.1);
+      margin-left: 38px;
+      display: none;
+    }
+    
+    .task-row.has-subtasks.expanded + .task-subtasks {
+      display: block;
+    }
+    
+    /* Subtask row */
+    .subtask-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0 6px 20px;
+    }
+    
+    .subtask-row.done {
+      opacity: 0.5;
+    }
+    
+    .subtask-name {
+      font-size: 13px;
+      flex: 1;
+    }
+    
+    .subtask-row.done .subtask-name {
+      text-decoration: line-through;
+    }
+    
+    /* Checkbox */
+    .checkbox {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      font-size: 11px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    
+    .checkbox.size-18 {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+    }
+    
+    .checkbox.size-16 {
+      width: 16px;
+      height: 16px;
+    }
+    
+    .checkbox.size-14 {
+      width: 14px;
+      height: 14px;
+      font-size: 10px;
+    }
+    
+    .checkbox.unchecked {
+      border: 2px solid rgba(255,255,255,0.2);
+      background: transparent;
+    }
+    
+    .checkbox.checked {
+      background: #22c55e;
+    }
+    
+    .checkbox.current {
+      border: 2px solid #22c55e;
+      background: rgba(34, 197, 94, 0.2);
+    }
+    
+    /* Calendar */
+    .calendar {
+      padding: 20px;
+    }
+    
+    .calendar-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 16px;
+    }
+    
+    .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    
+    .calendar-day-name {
+      text-align: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.05em;
+    }
+    
+    .calendar-weeks {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .calendar-week {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    
+    .calendar-cell {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 50px;
+    }
+    
+    .calendar-cell.today {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: rgba(34, 197, 94, 0.4);
+    }
+    
+    .calendar-cell-date {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 4px;
+    }
+    
+    .calendar-cell.today .calendar-cell-date {
+      color: #22c55e;
+      font-weight: 700;
+    }
+    
+    .calendar-dots {
+      display: flex;
+      gap: 2px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .calendar-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    
+    .empty-state-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .empty-state-desc {
+      color: rgba(255,255,255,0.5);
+    }
+    
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* Hover states & transitions */
+    .btn-done {
+      transition: transform 0.1s ease, filter 0.15s ease;
+    }
+    .btn-done:hover {
+      filter: brightness(1.15);
+      transform: scale(1.02);
+    }
+    .btn-done:active {
+      transform: scale(0.97);
+    }
+    .btn-skip {
+      transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+    }
+    .btn-skip:hover {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+    }
+    .btn-skip:active {
+      transform: scale(0.97);
+    }
+    .project-header {
+      transition: background 0.15s ease;
+    }
+    .project-header:hover {
+      background: rgba(255,255,255,0.03);
+    }
+    .milestone-header {
+      transition: background 0.15s ease;
+    }
+    .milestone-header:hover {
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+    }
+    .mode-toggle button {
+      transition: all 0.2s ease;
+    }
+    .mode-toggle button:hover:not(.active) {
+      color: rgba(255,255,255,0.8);
+    }
+    .view-toggle button {
+      transition: all 0.2s ease;
+    }
+    .view-toggle button:hover:not(.active) {
+      color: rgba(255,255,255,0.8);
+      background: rgba(255,255,255,0.05);
+    }
+
+    /* Progress bar */
+    .project-progress-bar {
+      width: 100%;
+      height: 3px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 2px;
+    }
+    .project-progress-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.5s ease;
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #22c55e;
+      color: #fff;
+      padding: 14px 24px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      z-index: 1000;
+      opacity: 0;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+      pointer-events: none;
+      box-shadow: 0 8px 30px rgba(34, 197, 94, 0.3);
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Confetti canvas */
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* Focus card entrance animation */
+    .focus-card {
+      animation: fadeSlideUp 0.3s ease;
+    }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Completed task strike-through animation */
+    .focus-subtask {
+      transition: opacity 0.3s ease;
+    }
+
+    /* Lock Screen */
+    .lock-screen {
+      position: fixed;
+      inset: 0;
+      background: #09090b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+    .lock-screen.unlocked {
+      animation: lockDismiss 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      pointer-events: none;
+    }
+    @keyframes lockDismiss {
+      to { opacity: 0; transform: scale(1.04); }
+    }
+    .lock-box {
+      text-align: center;
+      width: 100%;
+      max-width: 340px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 40px 32px 32px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      animation: lockEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes lockEntrance {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .lock-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    .lock-title {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      margin-bottom: 6px;
+    }
+    .lock-subtitle {
+      font-size: 14px;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 32px;
+    }
+    .lock-input-wrap {
+      position: relative;
+      width: 100%;
+      margin-bottom: 16px;
+    }
+    .lock-input {
+      width: 100%;
+      padding: 16px 48px 16px 18px;
+      border-radius: 12px;
+      border: 2px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.95);
+      color: #111;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      -webkit-appearance: none;
+      box-sizing: border-box;
+    }
+    .lock-input::placeholder {
+      color: #999;
+    }
+    .lock-input:focus {
+      border-color: #22c55e;
+      box-shadow: 0 0 0 3px rgba(34,197,94,0.2);
+    }
+    .lock-reveal {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      padding: 4px;
+      font-size: 18px;
+      line-height: 1;
+      transition: color 0.15s ease;
+    }
+    .lock-reveal:hover {
+      color: #111;
+    }
+    .lock-input.error {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239,68,68,0.15);
+      animation: shake 0.4s ease;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+    .lock-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 12px;
+      border: none;
+      background: #22c55e;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: filter 0.15s ease, transform 0.1s ease;
+    }
+    .lock-btn:hover { filter: brightness(1.1); }
+    .lock-btn:active { transform: scale(0.97); }
+    .lock-error-msg {
+      color: #ef4444;
+      font-size: 13px;
+      margin-top: 14px;
+      min-height: 20px;
+    }
+
+    /* Keyboard shortcut hints */
+    .kbd-hint {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      padding: 1px 5px;
+      margin-left: 6px;
+      vertical-align: middle;
+      letter-spacing: 0.03em;
+    }
+
+    /* Calendar interactive cells */
+    .calendar-cell {
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    }
+    .calendar-cell:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.15);
+      transform: scale(1.05);
+    }
+    .calendar-cell.selected {
+      background: rgba(34, 197, 94, 0.15);
+      border-color: rgba(34, 197, 94, 0.4);
+    }
+    .calendar-detail {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-top: 16px;
+      animation: fadeSlideUp 0.2s ease;
+    }
+    .calendar-detail-header {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: rgba(255,255,255,0.7);
+    }
+    .calendar-detail-empty {
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+      padding: 8px 0;
+    }
+
+    /* App entrance */
+    #app {
+      animation: appEntrance 0.4s ease;
+    }
+    @keyframes appEntrance {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 480px) {
+      .lock-box {
+        padding: 32px 24px 28px;
+        border-radius: 16px;
+        max-width: 300px;
+      }
+      .lock-icon {
+        font-size: 40px;
+        margin-bottom: 12px;
+      }
+      .lock-title {
+        font-size: 20px;
+      }
+      .lock-subtitle {
+        font-size: 13px;
+        margin-bottom: 24px;
+      }
+      .lock-input {
+        padding: 14px 44px 14px 16px;
+        font-size: 16px;
+      }
+      .lock-btn {
+        padding: 14px;
+        font-size: 15px;
+      }
+      .header {
+        padding: 16px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .header h1 {
+        font-size: 18px;
+      }
+      .content {
+        padding: 16px;
+      }
+      .focus-card {
+        padding: 22px;
+        border-radius: 16px;
+      }
+      .focus-title {
+        font-size: 20px;
+      }
+      .focus-meta {
+        flex-direction: column;
+        gap: 10px;
+      }
+      .focus-time {
+        width: 100%;
+      }
+      .kbd-hint {
+        display: none;
+      }
+      .calendar-cell {
+        min-height: 42px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="lock-screen" class="lock-screen">
+    <div class="lock-box">
+      <div class="lock-icon">🎯</div>
+      <div class="lock-title">Command Center</div>
+      <div class="lock-subtitle">Enter password to continue</div>
+      <div class="lock-input-wrap">
+        <input type="password" id="lock-password" class="lock-input" placeholder="Password" autocomplete="current-password">
+        <button type="button" class="lock-reveal" id="lock-reveal" onclick="toggleReveal()" aria-label="Show password">
+          <svg id="eye-open" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg id="eye-closed" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
+      <button id="lock-btn" class="lock-btn">Unlock</button>
+      <div id="lock-error" class="lock-error-msg"></div>
+    </div>
+  </div>
+
+  <div id="app" class="container" style="display:none">
+    <div class="loading">Loading...</div>
+  </div>
+
+  <script>
+    // ============================================
+    // AUTH
+    // ============================================
+
+    const PASS_HASH = 'e87a9c8727023857da83704330ebf315576890998952682db20f8a4edb33e387';
+    const AUTH_KEY = 'cc-auth';
+
+    function toggleReveal() {
+      const input = document.getElementById('lock-password');
+      const eyeOpen = document.getElementById('eye-open');
+      const eyeClosed = document.getElementById('eye-closed');
+      if (input.type === 'password') {
+        input.type = 'text';
+        eyeOpen.style.display = 'none';
+        eyeClosed.style.display = 'block';
+      } else {
+        input.type = 'password';
+        eyeOpen.style.display = 'block';
+        eyeClosed.style.display = 'none';
+      }
+    }
+
+    async function sha256(text) {
+      const data = new TextEncoder().encode(text);
+      const buf = await crypto.subtle.digest('SHA-256', data);
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function tryUnlock() {
+      const input = document.getElementById('lock-password');
+      const errorEl = document.getElementById('lock-error');
+      const hash = await sha256(input.value);
+
+      if (hash === PASS_HASH) {
+        sessionStorage.setItem(AUTH_KEY, '1');
+        const lockScreen = document.getElementById('lock-screen');
+        lockScreen.classList.add('unlocked');
+        document.getElementById('app').style.display = '';
+        setTimeout(() => lockScreen.remove(), 400);
+        loadData();
+      } else {
+        input.classList.add('error');
+        errorEl.textContent = 'Wrong password';
+        setTimeout(() => {
+          input.classList.remove('error');
+          errorEl.textContent = '';
+        }, 1500);
+        input.value = '';
+        input.focus();
+      }
+    }
+
+    function checkAuth() {
+      if (sessionStorage.getItem(AUTH_KEY) === '1') {
+        document.getElementById('lock-screen').remove();
+        document.getElementById('app').style.display = '';
+        loadData();
+      } else {
+        const input = document.getElementById('lock-password');
+        const btn = document.getElementById('lock-btn');
+        btn.addEventListener('click', tryUnlock);
+        input.addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
+        input.focus();
+      }
+    }
+
+    // ============================================
+    // STATE
+    // ============================================
+    
+    let state = {
+      data: null,
+      mode: 'focus', // 'focus' | 'command'
+      commandView: 'projects', // 'projects' | 'calendar'
+      expandedProjects: new Set(),
+      expandedMilestones: new Set(),
+      expandedTasks: new Set(),
+      selectedCalendarDate: null // Date string for calendar detail view
+    };
+
+    // ============================================
+    // DATA LOADING & PERSISTENCE
+    // ============================================
+
+    const STORAGE_KEY = 'command-center-data';
+
+    function saveToLocal() {
+      if (state.data) {
+        state.data.meta.lastUpdated = new Date().toISOString();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
+      }
+    }
+
+    function loadFromLocal() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        return stored ? JSON.parse(stored) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    async function loadData() {
+      try {
+        // Try live API first, fall back to static JSON
+        let freshData;
+        try {
+          const apiRes = await fetch('/api/data');
+          if (apiRes.ok) {
+            freshData = await apiRes.json();
+          }
+        } catch (apiErr) {
+          // API not available, try static file
+        }
+
+        if (!freshData) {
+          const jsonRes = await fetch('data.json?t=' + Date.now());
+          freshData = await jsonRes.json();
+        }
+
+        // Merge with local overrides (mark-done state from localStorage)
+        const localData = loadFromLocal();
+        if (localData && localData._localOverrides) {
+          applyLocalOverrides(freshData, localData._localOverrides);
+        }
+
+        state.data = freshData;
+        saveToLocal();
+        autoExpandActive();
+        render();
+      } catch (e) {
+        const localData = loadFromLocal();
+        if (localData) {
+          state.data = localData;
+          autoExpandActive();
+          render();
+        } else {
+          const app = document.getElementById('app');
+          app.textContent = '';
+          const div = document.createElement('div');
+          div.className = 'loading';
+          const p1 = document.createElement('p');
+          p1.textContent = 'Loading failed';
+          const p2 = document.createElement('p');
+          p2.style.cssText = 'font-size: 12px; margin-top: 8px;';
+          p2.textContent = e.message;
+          div.appendChild(p1);
+          div.appendChild(p2);
+          app.appendChild(div);
+        }
+      }
+    }
+
+    function applyLocalOverrides(data, overrides) {
+      // Apply any local mark-done overrides on top of live data
+      for (const project of data.projects) {
+        for (const milestone of project.milestones) {
+          if (milestone.tasks) {
+            for (const task of milestone.tasks) {
+              const key = task.id;
+              if (overrides[key]) {
+                Object.assign(task, overrides[key]);
+              }
+              if (task.subtasks) {
+                for (const sub of task.subtasks) {
+                  if (overrides[sub.id]) {
+                    Object.assign(sub, overrides[sub.id]);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    function autoExpandActive() {
+      state.data.projects.forEach(p => {
+        if (p.status === 'active') {
+          state.expandedProjects.add(p.id);
+        }
+        p.milestones.forEach(m => {
+          if (m.current) {
+            state.expandedMilestones.add(m.id);
+          }
+          if (m.tasks) {
+            m.tasks.forEach(t => {
+              if (t.current && t.subtasks) {
+                state.expandedTasks.add(t.id);
+              }
+            });
+          }
+        });
+      });
+    }
+
+    // ============================================
+    // UTILITIES
+    // ============================================
+    
+    function formatTime(minutes) {
+      if (!minutes) return '';
+      if (minutes < 60) return `${minutes}m`;
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+    }
+    
+    function getProjectProgress(project) {
+      let total = 0, done = 0;
+      project.milestones.forEach(m => {
+        if (m.tasks?.length) {
+          m.tasks.forEach(t => {
+            if (t.subtasks?.length) {
+              t.subtasks.forEach(s => { total++; if (s.done) done++; });
+            } else {
+              total++; if (t.done) done++;
+            }
+          });
+        } else {
+          total++; if (m.done) done++;
+        }
+      });
+      return total > 0 ? Math.round((done / total) * 100) : 0;
+    }
+    
+    function getCurrentTask() {
+      if (!state.data) return null;
+      for (const project of state.data.projects) {
+        for (const milestone of project.milestones) {
+          if (milestone.current && milestone.tasks) {
+            for (const task of milestone.tasks) {
+              if (task.current) {
+                if (task.subtasks) {
+                  const currentSubtask = task.subtasks.find(s => s.current);
+                  if (currentSubtask) {
+                    return { project, milestone, task, subtask: currentSubtask };
+                  }
+                }
+                return { project, milestone, task, subtask: null };
+              }
+            }
+          }
+        }
+      }
+      return null;
+    }
+    
+    function getUpcomingDeadlines(days = 14) {
+      if (!state.data) return [];
+      const deadlines = [];
+      const now = new Date();
+      const cutoff = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+      
+      state.data.projects.forEach(project => {
+        project.milestones.forEach(milestone => {
+          if (milestone.dueDate && !milestone.done) {
+            const due = new Date(milestone.dueDate);
+            if (due <= cutoff) {
+              deadlines.push({
+                project,
+                milestone,
+                dueDate: due,
+                daysLeft: Math.ceil((due - now) / (24 * 60 * 60 * 1000))
+              });
+            }
+          }
+        });
+      });
+      
+      return deadlines.sort((a, b) => a.dueDate - b.dueDate);
+    }
+    
+    function renderCheckbox(checked, current, size = 18, color = '#22c55e') {
+      const cls = checked ? 'checked' : current ? 'current' : 'unchecked';
+      const content = checked ? '✓' : current ? '→' : '';
+      return `<div class="checkbox size-${size} ${cls}" style="${checked ? `background:${color}` : current ? `border-color:${color};background:${color}33` : ''}">${content}</div>`;
+    }
+
+    // ============================================
+    // RENDER FUNCTIONS
+    // ============================================
+    
+    function renderFocusMode() {
+      const current = getCurrentTask();
+      const deadlines = getUpcomingDeadlines(7);
+      
+      if (!current) {
+        return `
+          <div class="empty-state">
+            <div class="empty-state-icon">🎉</div>
+            <div class="empty-state-title">All caught up!</div>
+            <div class="empty-state-desc">No tasks marked as "current"</div>
+          </div>
+        `;
+      }
+      
+      const { project, milestone, task, subtask } = current;
+      const activeItem = subtask || task;
+      
+      let subtasksHtml = '';
+      if (subtask && task.subtasks) {
+        subtasksHtml = `
+          <div class="focus-subtasks">
+            <div class="focus-subtasks-label">SUBTASKS</div>
+            ${task.subtasks.map(s => `
+              <div class="focus-subtask ${s.done ? 'done' : ''} ${s.current ? 'current' : ''}">
+                ${renderCheckbox(s.done, s.current, 16, project.color)}
+                <span class="focus-subtask-name" style="color: ${s.current ? '#fff' : 'rgba(255,255,255,0.7)'}">${s.name}</span>
+                ${s.aiTime && !s.done ? `<span class="task-time">🤖 ${formatTime(s.aiTime)}</span>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+      
+      const deadlinesHtml = deadlines.length > 0 ? `
+        <div class="info-card">
+          <div class="info-card-label">THIS WEEK'S DEADLINES</div>
+          ${deadlines.slice(0, 4).map(d => `
+            <div class="deadline-row">
+              <span style="font-size: 16px">${d.project.emoji}</span>
+              <span class="deadline-name">${d.milestone.name}</span>
+              <span class="deadline-days ${d.daysLeft <= 2 ? 'urgent' : d.daysLeft <= 5 ? 'soon' : ''}">
+                ${d.daysLeft === 0 ? 'Today' : d.daysLeft === 1 ? 'Tomorrow' : d.daysLeft + 'd'}
+              </span>
+            </div>
+          `).join('')}
+        </div>
+      ` : '';
+      
+      return `
+        <div class="focus-card" style="background: linear-gradient(135deg, ${project.color}22 0%, ${project.color}11 100%); border: 1px solid ${project.color}44;">
+          <div class="focus-breadcrumb">
+            <span>${project.emoji}</span>
+            <span>${project.name}</span>
+            <span class="sep">›</span>
+            <span>${milestone.name}</span>
+            ${subtask ? `<span class="sep">›</span><span>${task.name}</span>` : ''}
+          </div>
+          
+          <div class="focus-title">${activeItem.name}</div>
+          
+          <div class="focus-meta">
+            <div class="focus-time">
+              <span style="font-size: 20px">🤖</span>
+              <div>
+                <div class="focus-time-value">~${formatTime(activeItem.aiTime || 30)}</div>
+                <div class="focus-time-label">with Claude Code</div>
+              </div>
+            </div>
+            ${milestone.dueDate ? `
+              <div class="focus-time">
+                <div>
+                  <div class="focus-time-label">Milestone due</div>
+                  <div style="font-size: 14px; font-weight: 500">${new Date(milestone.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+          
+          ${subtasksHtml}
+          
+          <div class="focus-actions">
+            <button class="btn-done" style="background: ${project.color}" onclick="markDone()">✓ Mark Done<span class="kbd-hint">D</span></button>
+            <button class="btn-skip" onclick="skipCurrent()">Skip<span class="kbd-hint">S</span></button>
+          </div>
+        </div>
+        
+        ${deadlinesHtml}
+      `;
+    }
+    
+    function renderProjectCard(project) {
+      const progress = getProjectProgress(project);
+      const isExpanded = state.expandedProjects.has(project.id);
+      const currentMilestone = project.milestones.find(m => m.current);
+      
+      let milestonesHtml = '';
+      if (isExpanded) {
+        milestonesHtml = project.milestones.map(m => renderMilestone(m, project.color)).join('');
+      }
+      
+      return `
+        <div class="project-card ${isExpanded ? 'expanded' : ''}" data-project="${project.id}">
+          <div class="project-header" onclick="toggleProject('${project.id}')">
+            <span class="project-emoji">${project.emoji}</span>
+            <div class="project-info">
+              <div class="project-title-row">
+                <span class="project-name">${project.name}</span>
+                <span class="project-status ${project.status}">${project.status.toUpperCase()}</span>
+              </div>
+              <div class="project-desc">${project.description}</div>
+            </div>
+            <div class="project-progress">
+              <div class="project-progress-value ${progress === 100 ? 'complete' : ''}">${progress}%</div>
+              <div class="project-progress-bar">
+                <div class="project-progress-fill" style="width: ${progress}%; background: ${project.color}"></div>
+              </div>
+            </div>
+            <span class="project-chevron">▼</span>
+          </div>
+          
+          ${!isExpanded && currentMilestone ? `
+            <div class="project-current" style="background: ${project.color}08">
+              <span style="color: ${project.color}; margin-right: 8px; font-size: 11px">→</span>
+              <span class="project-current-text">
+                <span style="color: rgba(255,255,255,0.5); font-size: 12px; margin-right: 6px">Now:</span>
+                <span style="color: #fff; font-size: 13px">${currentMilestone.name}</span>
+              </span>
+            </div>
+          ` : ''}
+          
+          <div class="project-content">
+            <div class="milestones-label">MILESTONES</div>
+            ${milestonesHtml}
+          </div>
+        </div>
+      `;
+    }
+    
+    function renderMilestone(milestone, color) {
+      const isExpanded = state.expandedMilestones.has(milestone.id);
+      const hasTasks = milestone.tasks && milestone.tasks.length > 0;
+      const completedTasks = milestone.tasks?.filter(t => t.done).length || 0;
+      const totalTasks = milestone.tasks?.length || 0;
+      
+      let tasksHtml = '';
+      if (isExpanded && hasTasks) {
+        tasksHtml = milestone.tasks.map(t => renderTask(t, color)).join('');
+      }
+      
+      return `
+        <div class="milestone-row ${milestone.done ? 'done' : ''} ${milestone.current ? 'current' : ''} ${isExpanded ? 'expanded' : ''}" data-milestone="${milestone.id}">
+          <div class="milestone-header" onclick="toggleMilestone('${milestone.id}')">
+            ${hasTasks ? `<span class="milestone-chevron">▶</span>` : `<span style="width: 16px"></span>`}
+            ${renderCheckbox(milestone.done, milestone.current, 18, color)}
+            <span class="milestone-name">${milestone.name}</span>
+            ${hasTasks ? `<span class="milestone-count">${completedTasks}/${totalTasks}</span>` : ''}
+            ${milestone.dueDate && !milestone.done ? `<span class="milestone-due">${new Date(milestone.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>` : ''}
+            ${milestone.current ? `<span class="milestone-badge" style="color: ${color}">IN PROGRESS</span>` : ''}
+          </div>
+          <div class="milestone-tasks">
+            ${tasksHtml}
+          </div>
+        </div>
+      `;
+    }
+    
+    function renderTask(task, color) {
+      const isExpanded = state.expandedTasks.has(task.id);
+      const hasSubtasks = task.subtasks && task.subtasks.length > 0;
+      
+      let subtasksHtml = '';
+      if (hasSubtasks) {
+        subtasksHtml = `
+          <div class="task-subtasks">
+            ${task.subtasks.map(s => `
+              <div class="subtask-row ${s.done ? 'done' : ''} ${s.current ? 'current' : ''}">
+                ${renderCheckbox(s.done, s.current, 14, color)}
+                <span class="subtask-name" style="color: ${s.current ? '#fff' : 'rgba(255,255,255,0.6)'}">${s.name}</span>
+                ${s.aiTime && !s.done ? `<span class="task-time">🤖 ${formatTime(s.aiTime)}</span>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+      
+      return `
+        <div class="task-row ${task.done ? 'done' : ''} ${task.current ? 'current' : ''} ${hasSubtasks ? 'has-subtasks' : ''} ${isExpanded ? 'expanded' : ''}" data-task="${task.id}" onclick="toggleTask('${task.id}')">
+          ${hasSubtasks ? `<span class="task-chevron">▶</span>` : `<span style="width: 14px"></span>`}
+          ${renderCheckbox(task.done, task.current, 16, color)}
+          <span class="task-name">${task.name}</span>
+          ${task.aiTime && !task.done ? `<span class="task-time">🤖 ${formatTime(task.aiTime)}</span>` : ''}
+          ${task.current ? `<span class="task-badge" style="color: ${color}; background: ${color}22">NOW</span>` : ''}
+        </div>
+        ${subtasksHtml}
+      `;
+    }
+    
+    function renderCalendar() {
+      const deadlines = getUpcomingDeadlines(21);
+      const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+      // Generate weeks
+      const today = new Date();
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - ((today.getDay() + 6) % 7)); // Monday
+
+      let weeksHtml = '';
+      for (let w = 0; w < 3; w++) {
+        let weekHtml = '';
+        for (let d = 0; d < 7; d++) {
+          const date = new Date(startOfWeek);
+          date.setDate(startOfWeek.getDate() + (w * 7) + d);
+          const dateStr = date.toDateString();
+          const isToday = dateStr === today.toDateString();
+          const isSelected = state.selectedCalendarDate === dateStr;
+          const dayDeadlines = deadlines.filter(dl => dl.dueDate.toDateString() === dateStr);
+
+          const dotsHtml = dayDeadlines.slice(0, 3).map(dl =>
+            `<div class="calendar-dot" style="background: ${dl.project.color}"></div>`
+          ).join('');
+
+          weekHtml += `
+            <div class="calendar-cell ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}" onclick="selectCalendarDate('${dateStr}')">
+              <div class="calendar-cell-date">${date.getDate()}</div>
+              <div class="calendar-dots">${dotsHtml}</div>
+            </div>
+          `;
+        }
+        weeksHtml += `<div class="calendar-week">${weekHtml}</div>`;
+      }
+
+      // Selected date detail panel
+      let detailHtml = '';
+      if (state.selectedCalendarDate) {
+        const selDate = new Date(state.selectedCalendarDate);
+        const dateLabel = selDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+        const dayDeadlines = deadlines.filter(dl => dl.dueDate.toDateString() === state.selectedCalendarDate);
+
+        if (dayDeadlines.length > 0) {
+          detailHtml = `
+            <div class="calendar-detail">
+              <div class="calendar-detail-header">${dateLabel}</div>
+              ${dayDeadlines.map(dl => `
+                <div class="deadline-row" style="cursor: pointer" onclick="jumpToProject('${dl.project.id}')">
+                  <div class="calendar-dot" style="background: ${dl.project.color}; width: 8px; height: 8px"></div>
+                  <span style="font-size: 16px">${dl.project.emoji}</span>
+                  <span class="deadline-name">${dl.milestone.name}</span>
+                  <span style="font-size: 11px; color: rgba(255,255,255,0.4)">→ view</span>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        } else {
+          detailHtml = `
+            <div class="calendar-detail">
+              <div class="calendar-detail-header">${dateLabel}</div>
+              <div class="calendar-detail-empty">No deadlines on this day</div>
+            </div>
+          `;
+        }
+      }
+
+      const upcomingHtml = deadlines.slice(0, 6).map(dl => `
+        <div class="deadline-row" style="cursor: pointer" onclick="jumpToProject('${dl.project.id}')">
+          <div class="calendar-dot" style="background: ${dl.project.color}; width: 8px; height: 8px"></div>
+          <span style="font-size: 14px">${dl.project.emoji}</span>
+          <span class="deadline-name">${dl.milestone.name}</span>
+          <span class="deadline-days ${dl.daysLeft <= 3 ? 'urgent' : ''}">${new Date(dl.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+        </div>
+      `).join('');
+
+      return `
+        <div class="calendar">
+          <div class="calendar-label">CALENDAR • NEXT 3 WEEKS</div>
+          <div class="calendar-days">
+            ${dayNames.map(d => `<div class="calendar-day-name">${d}</div>`).join('')}
+          </div>
+          <div class="calendar-weeks">
+            ${weeksHtml}
+          </div>
+          ${detailHtml}
+
+          <div class="info-card" style="margin-top: 20px">
+            <div class="info-card-label">UPCOMING</div>
+            ${upcomingHtml}
+          </div>
+        </div>
+      `;
+    }
+    
+    function renderCommandMode() {
+      const projectsHtml = state.data.projects
+        .sort((a, b) => a.priority - b.priority)
+        .map(p => renderProjectCard(p))
+        .join('');
+      
+      return `
+        <div class="view-toggle">
+          <button class="${state.commandView === 'projects' ? 'active' : ''}" onclick="setCommandView('projects')">📋 Projects</button>
+          <button class="${state.commandView === 'calendar' ? 'active' : ''}" onclick="setCommandView('calendar')">📅 Calendar</button>
+        </div>
+        
+        ${state.commandView === 'calendar' ? renderCalendar() : projectsHtml}
+      `;
+    }
+    
+    function render() {
+      if (!state.data) {
+        return;
+      }
+      
+      const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+      
+      document.getElementById('app').innerHTML = `
+        <div class="header">
+          <div>
+            <h1>Command Center</h1>
+            <div class="header-date">${today}${state.data.meta.lastScanType === 'live-api' ? ' &middot; <span style="color:#22c55e">LIVE</span>' : ''}</div>
+          </div>
+          <div class="mode-toggle">
+            <button class="${state.mode === 'focus' ? 'active' : ''}" onclick="setMode('focus')">Focus</button>
+            <button class="${state.mode === 'command' ? 'active' : ''}" onclick="setMode('command')">Command</button>
+          </div>
+        </div>
+        
+        <div class="content">
+          ${state.mode === 'focus' ? renderFocusMode() : renderCommandMode()}
+        </div>
+      `;
+    }
+
+    // ============================================
+    // EVENT HANDLERS
+    // ============================================
+
+    function setMode(mode) {
+      state.mode = mode;
+      render();
+    }
+
+    function setCommandView(view) {
+      state.commandView = view;
+      render();
+    }
+
+    function toggleProject(id) {
+      if (state.expandedProjects.has(id)) {
+        state.expandedProjects.delete(id);
+      } else {
+        state.expandedProjects.add(id);
+      }
+      render();
+    }
+
+    function toggleMilestone(id) {
+      if (state.expandedMilestones.has(id)) {
+        state.expandedMilestones.delete(id);
+      } else {
+        state.expandedMilestones.add(id);
+      }
+      render();
+    }
+
+    function toggleTask(id) {
+      if (state.expandedTasks.has(id)) {
+        state.expandedTasks.delete(id);
+      } else {
+        state.expandedTasks.add(id);
+      }
+      render();
+    }
+
+    function selectCalendarDate(dateStr) {
+      if (state.selectedCalendarDate === dateStr) {
+        state.selectedCalendarDate = null;
+      } else {
+        state.selectedCalendarDate = dateStr;
+      }
+      render();
+    }
+
+    function jumpToProject(projectId) {
+      state.commandView = 'projects';
+      state.expandedProjects.add(projectId);
+      render();
+      // Scroll to the project card
+      setTimeout(() => {
+        const card = document.querySelector(`[data-project="${projectId}"]`);
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Don't trigger shortcuts when typing in inputs
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      // Only when authenticated
+      if (sessionStorage.getItem(AUTH_KEY) !== '1') return;
+
+      const key = e.key.toLowerCase();
+
+      if (state.mode === 'focus') {
+        if (key === 'd') {
+          e.preventDefault();
+          markDone();
+        } else if (key === 's') {
+          e.preventDefault();
+          skipCurrent();
+        }
+      }
+
+      // Global shortcuts
+      if (key === '1') {
+        e.preventDefault();
+        setMode('focus');
+      } else if (key === '2') {
+        e.preventDefault();
+        setMode('command');
+      } else if (key === 'escape' && state.selectedCalendarDate) {
+        e.preventDefault();
+        state.selectedCalendarDate = null;
+        render();
+      }
+    });
+
+    // ============================================
+    // MARK DONE & SKIP
+    // ============================================
+
+    function markDone() {
+      const current = getCurrentTask();
+      if (!current) return;
+
+      const { project, milestone, task, subtask } = current;
+
+      if (subtask) {
+        // Mark subtask done
+        subtask.done = true;
+        subtask.completedAt = new Date().toISOString();
+        delete subtask.current;
+
+        // Find next undone subtask
+        const idx = task.subtasks.findIndex(s => s.id === subtask.id);
+        const nextSubtask = task.subtasks.slice(idx + 1).find(s => !s.done);
+
+        if (nextSubtask) {
+          nextSubtask.current = true;
+          showToast('Done! Moving to next subtask');
+        } else {
+          // All subtasks done - mark task done
+          task.done = true;
+          task.completedAt = new Date().toISOString();
+          delete task.current;
+          advanceToNextTask(milestone, task, project);
+        }
+      } else {
+        // Mark task done (no subtasks)
+        task.done = true;
+        task.completedAt = new Date().toISOString();
+        delete task.current;
+        advanceToNextTask(milestone, task, project);
+      }
+
+      saveToLocal();
+      launchConfetti();
+      render();
+    }
+
+    function advanceToNextTask(milestone, doneTask, project) {
+      const idx = milestone.tasks.findIndex(t => t.id === doneTask.id);
+      const nextTask = milestone.tasks.slice(idx + 1).find(t => !t.done);
+
+      if (nextTask) {
+        nextTask.current = true;
+        if (nextTask.subtasks && nextTask.subtasks.length > 0) {
+          const firstUndone = nextTask.subtasks.find(s => !s.done);
+          if (firstUndone) firstUndone.current = true;
+        }
+        state.expandedTasks.add(nextTask.id);
+        showToast('Task complete! Next one up');
+      } else {
+        // All tasks in milestone done
+        milestone.done = true;
+        milestone.completedAt = new Date().toISOString();
+        delete milestone.current;
+
+        // Find next undone milestone
+        const mIdx = project.milestones.findIndex(m => m.id === milestone.id);
+        const nextMilestone = project.milestones.slice(mIdx + 1).find(m => !m.done);
+
+        if (nextMilestone) {
+          nextMilestone.current = true;
+          if (nextMilestone.tasks && nextMilestone.tasks.length > 0) {
+            const firstTask = nextMilestone.tasks.find(t => !t.done);
+            if (firstTask) {
+              firstTask.current = true;
+              if (firstTask.subtasks && firstTask.subtasks.length > 0) {
+                const firstSub = firstTask.subtasks.find(s => !s.done);
+                if (firstSub) firstSub.current = true;
+              }
+              state.expandedTasks.add(firstTask.id);
+            }
+          }
+          state.expandedMilestones.add(nextMilestone.id);
+          showToast('Milestone complete! On to the next');
+        } else {
+          showToast('Project milestone complete!');
+        }
+      }
+    }
+
+    function skipCurrent() {
+      const current = getCurrentTask();
+      if (!current) return;
+
+      const { project, milestone, task, subtask } = current;
+
+      if (subtask) {
+        delete subtask.current;
+        const idx = task.subtasks.findIndex(s => s.id === subtask.id);
+        const nextSubtask = task.subtasks.slice(idx + 1).find(s => !s.done);
+        if (nextSubtask) {
+          nextSubtask.current = true;
+          showToast('Skipped to next subtask');
+        } else {
+          // Wrap around to first undone
+          const firstUndone = task.subtasks.find(s => !s.done);
+          if (firstUndone) {
+            firstUndone.current = true;
+            showToast('Wrapped back to first undone subtask');
+          }
+        }
+      } else {
+        delete task.current;
+        const idx = milestone.tasks.findIndex(t => t.id === task.id);
+        const nextTask = milestone.tasks.slice(idx + 1).find(t => !t.done);
+        if (nextTask) {
+          nextTask.current = true;
+          if (nextTask.subtasks && nextTask.subtasks.length > 0) {
+            const firstSub = nextTask.subtasks.find(s => !s.done);
+            if (firstSub) firstSub.current = true;
+          }
+          state.expandedTasks.add(nextTask.id);
+          showToast('Skipped to next task');
+        } else {
+          const firstUndone = milestone.tasks.find(t => !t.done);
+          if (firstUndone) {
+            firstUndone.current = true;
+            showToast('Wrapped back to first undone task');
+          }
+        }
+      }
+
+      saveToLocal();
+      render();
+    }
+
+    // ============================================
+    // TOAST & CONFETTI
+    // ============================================
+
+    function showToast(message) {
+      let toast = document.getElementById('toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'toast';
+        toast.className = 'toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = message;
+      // Force reflow for re-trigger
+      toast.classList.remove('show');
+      void toast.offsetWidth;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    function launchConfetti() {
+      const canvas = document.createElement('canvas');
+      canvas.id = 'confetti-canvas';
+      document.body.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const colors = ['#22c55e', '#8b5cf6', '#3b82f6', '#f59e0b', '#ec4899', '#06b6d4'];
+      const particles = [];
+
+      for (let i = 0; i < 60; i++) {
+        particles.push({
+          x: canvas.width / 2 + (Math.random() - 0.5) * 200,
+          y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 12,
+          vy: Math.random() * -14 - 4,
+          size: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 10,
+          gravity: 0.3
+        });
+      }
+
+      let frame = 0;
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let alive = false;
+
+        for (const p of particles) {
+          p.x += p.vx;
+          p.vy += p.gravity;
+          p.y += p.vy;
+          p.rotation += p.rotationSpeed;
+          p.vx *= 0.99;
+
+          if (p.y < canvas.height + 50) alive = true;
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = Math.max(0, 1 - frame / 80);
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+          ctx.restore();
+        }
+
+        frame++;
+        if (alive && frame < 90) {
+          requestAnimationFrame(animate);
+        } else {
+          canvas.remove();
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+
+    // ============================================
+    // SERVICE WORKER
+    // ============================================
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+
+    // ============================================
+    // INIT
+    // ============================================
+
+    checkAuth();
+
+    // Auto-refresh every 5 minutes (only when authenticated)
+    setInterval(() => {
+      if (sessionStorage.getItem(AUTH_KEY) === '1') loadData();
+    }, 5 * 60 * 1000);
+  </script>
+</body>
+</html>

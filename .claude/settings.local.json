@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(vercel --version:*)",
+      "Bash(vercel public:*)",
+      "Bash(vercel ls:*)",
+      "Bash(vercel:*)",
+      "Bash(node -e:*)",
+      "Bash(python3:*)",
+      "Bash(gh repo list:*)",
+      "Bash(gh auth token:*)",
+      "Bash(gh api:*)",
+      "Bash(printf:*)",
+      "Bash(curl:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)",
+      "Bash(npx vercel --prod)",
+      "Bash(git init:*)"
+    ]
+  }
+}
