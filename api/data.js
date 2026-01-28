@@ -145,6 +145,20 @@ function parseChecklists(content, fileName) {
         name: checkMatch[2].trim(),
         section: currentHeading
       });
+      continue;
+    }
+
+    // Also parse table-format tasks: | # | Task Name | Complexity | [x] | Notes |
+    const tableMatch = line.match(/^\|[^|]*\|([^|]+)\|[^|]*\|\s*\[([ xX])\]\s*\|/);
+    if (tableMatch) {
+      const taskText = tableMatch[1].trim();
+      if (taskText && !taskText.match(/^[-\s]+$/) && taskText.toLowerCase() !== 'task') {
+        tasks.push({
+          done: tableMatch[2].toLowerCase() === 'x',
+          name: taskText,
+          section: currentHeading
+        });
+      }
     }
   }
 
@@ -158,11 +172,18 @@ function parseChecklists(content, fileName) {
 async function buildProjectData(repo, index) {
   const { name: repoName, owner, description, pushedAt } = repo;
 
-  // Get file tree to find PRD files
+  // Get file tree to find task/PRD files
+  // Prioritize tasks/ directory (section-based, parallel-safe)
+  // Fall back to scattered PRD files if no tasks/ dir exists
   let prdFiles = [];
   try {
     const tree = await getFileTree(owner, repoName);
-    prdFiles = tree.filter(f => PRD_FILE_PATTERN.test(f));
+    const taskFiles = tree.filter(f => /^tasks\/.*\.md$/i.test(f));
+    if (taskFiles.length > 0) {
+      prdFiles = taskFiles;
+    } else {
+      prdFiles = tree.filter(f => PRD_FILE_PATTERN.test(f));
+    }
   } catch (e) {
     // Empty repo or no access — skip file tree
   }
