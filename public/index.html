@@ -1162,9 +1162,9 @@
     
     let state = {
       data: null,
-      mode: 'focus', // 'focus' | 'command'
+      mode: 'command', // 'command' | 'focus' — default to command view
       commandView: 'projects', // 'projects' | 'calendar'
-      expandedProjects: new Set(),
+      expandedProjects: new Set(), // All collapsed by default
       expandedMilestones: new Set(),
       expandedTasks: new Set(),
       selectedCalendarDate: null // Date string for calendar detail view
@@ -1212,23 +1212,8 @@
     }
 
     function autoExpandActive() {
-      state.data.projects.forEach(p => {
-        if (p.status === 'active') {
-          state.expandedProjects.add(p.id);
-        }
-        p.milestones.forEach(m => {
-          if (m.current) {
-            state.expandedMilestones.add(m.id);
-          }
-          if (m.tasks) {
-            m.tasks.forEach(t => {
-              if (t.current && t.subtasks) {
-                state.expandedTasks.add(t.id);
-              }
-            });
-          }
-        });
-      });
+      // All projects start collapsed — user expands what they want to see
+      // Only pre-expand milestones/tasks within a project when the user expands it
     }
 
     // ============================================
@@ -1616,7 +1601,7 @@
     
     function renderCommandMode() {
       const projectsHtml = state.data.projects
-        .sort((a, b) => a.priority - b.priority)
+        .sort((a, b) => (a.daysSinceUpdate || 999) - (b.daysSinceUpdate || 999)) // Most recently updated first
         .map(p => renderProjectCard(p))
         .join('');
       

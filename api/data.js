@@ -23,8 +23,6 @@ const SKIP_REPOS = new Set([
   'nolimitjonesinc',        // GitHub profile config
   'mockingbird-test',       // test repo
   'simple-hello-world-web-page-single-page-that-say', // auto-generated
-  'Twitter-Bot',            // empty repo
-  'Tagaroo',                // empty repo
 ]);
 
 // Deterministic color palette — each repo gets a consistent color based on its name

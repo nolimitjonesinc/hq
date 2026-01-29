@@ -16,7 +16,30 @@
       "Bash(git commit:*)",
       "Bash(git push)",
       "Bash(npx vercel --prod)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(git branch:*)",
+      "Bash(gh auth status:*)",
+      "Bash(gh repo create:*)",
+      "Bash(for repo in Loomiverse-Online Twitter-Bot mockingbirdnews DJ-Brain MASTER_MockingBirdApp Gaurdian EmbersInc Quiply Genesis-Engine tweetminer)",
+      "Bash(do)",
+      "Bash(echo:*)",
+      "Bash(done)",
+      "Bash(for repo in command-center dj-loop)",
+      "Bash(npx vercel env ls:*)",
+      "Bash(npx vercel:*)",
+      "Bash(head -30 __NEW_LINE_a1464c875bcd62db__ echo echo '=== Org repos \\(Nolimit-Labs-Projects\\) ===' gh api \"orgs/Nolimit-Labs-Projects/repos?per_page=100&sort=pushed&type=all\" --jq .[].name)",
+      "Bash(__NEW_LINE_58f7d6c0ea58c120__ echo \"\")",
+      "Bash(git config:*)",
+      "Bash(find:*)",
+      "Bash(node /Users/dannyjonesphotography/Desktop/command-center/scripts/migrate-prd-to-tasks.js:*)",
+      "Bash(for repo in Tagaroo Loomiverse-Online TechScoutPro AD-Scheduler-Pro Twitter-Bot mockingbirdnews DJ-Brain MASTER_MockingBirdApp Gaurdian EmbersInc Quiply Loomiverse Genesis-Engine tweetminer Plug-In-MBN-V6-Master CrimeCam.Fun scroll-n-say Saucypants InsultGPT)",
+      "Bash(claude=\"❌\")",
+      "Bash(tasks=\"❌\")",
+      "Bash(claude=\"✅\")",
+      "Bash(tasks=\"✅\")",
+      "Bash(node:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(git push:*)"
     ]
   }
 }
