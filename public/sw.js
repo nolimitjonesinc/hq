@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cc-v2';
+const CACHE_NAME = 'cc-v3';
 const ASSETS = ['/', '/index.html', '/data.json', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', e => {
