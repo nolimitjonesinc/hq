@@ -72,10 +72,14 @@ async function getAllRepos() {
   const allRepos = [];
 
   for (const source of GITHUB_SOURCES) {
-    // Fetch both pages to ensure we get all repos
-    const endpoint = source.type === 'org'
-      ? `orgs/${source.name}/repos?per_page=100&sort=pushed&type=all`
-      : `users/${source.name}/repos?per_page=100&sort=pushed&type=owner`;
+    let endpoint;
+    if (source.type === 'org') {
+      // For orgs, use the org repos endpoint
+      endpoint = `orgs/${source.name}/repos?per_page=100&sort=pushed&type=all`;
+    } else {
+      // For users, use /user/repos with affiliation=owner to get PRIVATE repos too
+      endpoint = `user/repos?per_page=100&sort=pushed&affiliation=owner`;
+    }
 
     const repos = await ghFetch(endpoint);
     if (!repos || !Array.isArray(repos)) continue;
@@ -84,10 +88,15 @@ async function getAllRepos() {
       if (repo.archived) continue;
       if (SKIP_REPOS.has(repo.name)) continue;
 
+      // For user repos, filter to only include repos owned by the target user
+      if (source.type === 'user' && repo.owner?.login?.toLowerCase() !== source.name.toLowerCase()) {
+        continue;
+      }
+
       allRepos.push({
         name: repo.name,
         fullName: repo.full_name,
-        owner: source.name,
+        owner: repo.owner?.login || source.name,
         description: repo.description || '',
         pushedAt: repo.pushed_at,
         defaultBranch: repo.default_branch,
